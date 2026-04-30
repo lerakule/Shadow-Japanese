@@ -2,8 +2,7 @@ import { useApp } from '../../context/AppContext';
 import styles from './TabBar.module.css';
 
 const tabs = [
-  { id: 'home', label: '首页', icon: '📚' },
-  { id: 'practice', label: '练习', icon: '🎤' },
+  { id: 'home', label: '动漫', icon: '🎬' },
   { id: 'grammar', label: '语法', icon: '📖' },
   { id: 'progress', label: '我的', icon: '📊' },
 ];

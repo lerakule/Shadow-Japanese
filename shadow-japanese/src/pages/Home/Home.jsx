@@ -1,136 +1,222 @@
 import { useState, useEffect } from 'react';
 import { useApp, ActionTypes } from '../../context/AppContext';
-import { getDailyContents } from '../../data/contents';
-import { fetchNHKNewsList } from '../../data/nhkApi';
-import ContentCard from '../../components/ContentCard';
+import { getTopAnime, searchAnime, getSeasonalAnime } from '../../data/animeApi';
+import AnimeCard from '../../components/AnimeCard';
+import VideoModal from '../../components/VideoModal';
 import styles from './Home.module.css';
 
 function Home() {
   const { state, dispatch } = useApp();
-  const [contents, setContents] = useState([]);
+  const [animeList, setAnimeList] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [newsLoading, setNewsLoading] = useState(false);
-  const [contentSource, setContentSource] = useState('builtin'); // 'builtin' | 'nhk'
-  
-  // 加载内置内容
-  const loadBuiltinContents = () => {
+  const [contentType, setContentType] = useState('top'); // 'top' | 'seasonal' | 'search'
+  const [searchQuery, setSearchQuery] = useState('');
+  const [searchInput, setSearchInput] = useState('');
+  const [selectedAnime, setSelectedAnime] = useState(null);
+  const [showVideoModal, setShowVideoModal] = useState(false);
+  const [error, setError] = useState(null);
+
+  // 加载热门动漫
+  const loadTopAnime = async () => {
     setLoading(true);
-    setTimeout(() => {
-      const dailyContents = getDailyContents();
-      setContents(dailyContents);
-      setContentSource('builtin');
-      setLoading(false);
-    }, 300);
+    setError(null);
+    try {
+      const data = await getTopAnime(1, 15);
+      setAnimeList(data.anime);
+      setContentType('top');
+    } catch (err) {
+      console.error('加载热门动漫失败:', err);
+      setError('加载失败，请稍后重试');
+    }
+    setLoading(false);
   };
 
-  // 加载NHK新闻
-  const loadNHKNews = async () => {
-    setNewsLoading(true);
+  // 加载当季动漫
+  const loadSeasonalAnime = async () => {
+    setLoading(true);
+    setError(null);
     try {
-      const news = await fetchNHKNewsList();
-      if (news.length > 0) {
-        setContents(news);
-        setContentSource('nhk');
-      } else {
-        // 如果NHK加载失败，加载内置内容
-        loadBuiltinContents();
-      }
-    } catch (error) {
-      console.error('Failed to load NHK news:', error);
-      loadBuiltinContents();
+      const data = await getSeasonalAnime(1, 15);
+      setAnimeList(data.anime);
+      setContentType('seasonal');
+    } catch (err) {
+      console.error('加载当季动漫失败:', err);
+      setError('加载失败，请稍后重试');
     }
-    setNewsLoading(false);
+    setLoading(false);
+  };
+
+  // 搜索动漫
+  const handleSearch = async (e) => {
+    e.preventDefault();
+    if (!searchQuery.trim()) return;
+    
+    setLoading(true);
+    setError(null);
+    try {
+      const data = await searchAnime(searchQuery, 1);
+      setAnimeList(data.anime);
+      setContentType('search');
+    } catch (err) {
+      console.error('搜索失败:', err);
+      setError('搜索失败，请稍后重试');
+    }
+    setLoading(false);
+  };
+
+  // 处理搜索输入
+  const handleSearchInputChange = (e) => {
+    setSearchInput(e.target.value);
+  };
+
+  // 执行搜索
+  const executeSearch = () => {
+    if (searchInput.trim()) {
+      setSearchQuery(searchInput);
+    }
+  };
+
+  // 按回车搜索
+  const handleKeyPress = (e) => {
+    if (e.key === 'Enter') {
+      executeSearch();
+    }
   };
 
   useEffect(() => {
-    loadBuiltinContents();
+    loadTopAnime();
   }, []);
 
-  const handleCardClick = (content) => {
-    dispatch({ type: ActionTypes.SET_CURRENT_CONTENT, payload: content });
-    dispatch({ type: ActionTypes.SET_ACTIVE_TAB, payload: 'practice' });
+  // 当searchQuery变化时执行搜索
+  useEffect(() => {
+    if (searchQuery) {
+      handleSearch({ preventDefault: () => {} });
+    }
+  }, [searchQuery]);
+
+  const handleAnimeClick = (anime) => {
+    setSelectedAnime(anime);
+    dispatch({ type: ActionTypes.SET_CURRENT_CONTENT, payload: anime });
   };
 
-  // 计算今日完成数
-  const today = new Date().toISOString().split('T')[0];
-  const completedToday = contents.filter(c => 
-    state.completedContents[c.id]?.date === today
-  ).length;
-  
+  const handlePlayVideo = (anime, e) => {
+    e?.stopPropagation();
+    if (anime.trailer?.url || anime.streaming?.[0]?.url) {
+      setSelectedAnime(anime);
+      setShowVideoModal(true);
+    }
+  };
+
+  const closeVideoModal = () => {
+    setShowVideoModal(false);
+    setSelectedAnime(null);
+  };
+
   // 格式化日期
   const formatDate = () => {
     const options = { year: 'numeric', month: 'long', day: 'numeric', weekday: 'long' };
     return new Date().toLocaleDateString('zh-CN', options);
   };
 
-  if (loading && !newsLoading) {
-    return (
-      <div className={styles.home}>
-        <div className={styles.loading}>
-          <div className={styles.spinner} />
-          <p className={styles.loadingText}>加载中...</p>
-        </div>
-      </div>
-    );
-  }
+  const getTypeTitle = () => {
+    switch (contentType) {
+      case 'top': return '🏆 热门排行';
+      case 'seasonal': return '📺 当季新番';
+      case 'search': return `🔍 搜索结果: "${searchQuery}"`;
+      default: return '🎬 动漫列表';
+    }
+  };
 
   return (
     <div className={styles.home}>
       <div className={styles.header}>
         <p className={styles.date}>{formatDate()}</p>
         <h1 className={styles.title}>
-          <span className={styles.titleIcon}>🌸</span>
-          今日日语
+          <span className={styles.titleIcon}>🎬</span>
+          日语动漫学习
         </h1>
         <p className={styles.goal}>
-          今日目标：<span className={styles.goalHighlight}>{completedToday}/{contents.length}</span> 篇
+          通过观看日语动漫学习地道表达 🎌
         </p>
         
-        {/* 内容源切换 */}
+        {/* 内容类型切换 */}
         <div className={styles.sourceSwitch}>
-          <span className={styles.sourceLabel}>内容来源：</span>
           <button 
-            className={`${styles.sourceButton} ${contentSource === 'builtin' ? styles.active : ''}`}
-            onClick={loadBuiltinContents}
+            className={`${styles.sourceButton} ${contentType === 'top' ? styles.active : ''}`}
+            onClick={loadTopAnime}
           >
-            📚 内置课程
+            🏆 热门
           </button>
           <button 
-            className={`${styles.sourceButton} ${contentSource === 'nhk' ? styles.active : ''}`}
-            onClick={loadNHKNews}
-            disabled={newsLoading}
+            className={`${styles.sourceButton} ${contentType === 'seasonal' ? styles.active : ''}`}
+            onClick={loadSeasonalAnime}
           >
-            {newsLoading ? '⏳ 加载中...' : '📰 NHK新闻'}
+            📺 当季
           </button>
         </div>
         
-        {contentSource === 'nhk' && (
-          <p className={styles.sourceHint}>
-            📻 实时日语新闻，带音频，N3-N2难度
-          </p>
-        )}
+        {/* 搜索框 */}
+        <div className={styles.searchBox}>
+          <input
+            type="text"
+            className={styles.searchInput}
+            placeholder="搜索动漫..."
+            value={searchInput}
+            onChange={handleSearchInputChange}
+            onKeyPress={handleKeyPress}
+          />
+          <button 
+            className={styles.searchButton}
+            onClick={executeSearch}
+          >
+            🔍
+          </button>
+        </div>
+        
+        <p className={styles.sourceHint}>
+          💡 点击卡片查看详情，播放预告片练习听力
+        </p>
       </div>
       
-      {newsLoading ? (
+      <h2 className={styles.sectionTitle}>{getTypeTitle()}</h2>
+      
+      {loading ? (
         <div className={styles.loading}>
           <div className={styles.spinner} />
-          <p className={styles.loadingText}>正在获取NHK新闻...</p>
+          <p className={styles.loadingText}>正在加载动漫列表...</p>
         </div>
-      ) : contents.length === 0 ? (
+      ) : error ? (
         <div className={styles.emptyState}>
-          <div className={styles.emptyIcon}>📚</div>
-          <p>暂无内容</p>
+          <div className={styles.emptyIcon}>😢</div>
+          <p>{error}</p>
+          <button className={styles.retryButton} onClick={loadTopAnime}>
+            重新加载
+          </button>
+        </div>
+      ) : animeList.length === 0 ? (
+        <div className={styles.emptyState}>
+          <div className={styles.emptyIcon}>🔍</div>
+          <p>没有找到相关动漫</p>
         </div>
       ) : (
-        <div className={styles.contentList}>
-          {contents.map(content => (
-            <ContentCard 
-              key={content.id} 
-              content={content}
-              onClick={handleCardClick}
+        <div className={styles.animeGrid}>
+          {animeList.map(anime => (
+            <AnimeCard 
+              key={anime.id} 
+              anime={anime}
+              onClick={() => handleAnimeClick(anime)}
+              onPlayTrailer={(e) => handlePlayVideo(anime, e)}
             />
           ))}
         </div>
+      )}
+
+      {/* 视频播放器模态框 */}
+      {showVideoModal && selectedAnime && (
+        <VideoModal 
+          anime={selectedAnime}
+          onClose={closeVideoModal}
+        />
       )}
     </div>
   );
