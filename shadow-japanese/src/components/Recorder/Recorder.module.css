@@ -1,0 +1,171 @@
+.recorder {
+  background: var(--color-card);
+  border-radius: var(--radius-lg);
+  padding: var(--spacing-lg);
+  box-shadow: var(--shadow-md);
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--spacing-md);
+}
+
+.title {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--color-primary);
+}
+
+.duration {
+  font-size: 18px;
+  font-family: var(--font-en);
+  color: var(--color-accent);
+  font-weight: 600;
+}
+
+.recordButton {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all var(--transition-normal);
+  margin: var(--spacing-lg) auto;
+  position: relative;
+}
+
+.recordButton.idle {
+  background: linear-gradient(135deg, #E17055 0%, #D63031 100%);
+}
+
+.recordButton.recording {
+  background: linear-gradient(135deg, #D63031 0%, #B71C1C 100%);
+  animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    transform: scale(1);
+    box-shadow: 0 0 0 0 rgba(214, 48, 49, 0.4);
+  }
+  50% {
+    transform: scale(1.05);
+    box-shadow: 0 0 0 15px rgba(214, 48, 49, 0);
+  }
+}
+
+.recordButton:hover {
+  transform: scale(1.05);
+}
+
+.recordButton:active {
+  transform: scale(0.98);
+}
+
+.recordIcon {
+  font-size: 28px;
+  color: white;
+}
+
+.hint {
+  text-align: center;
+  font-size: 13px;
+  color: var(--color-secondary);
+  margin-bottom: var(--spacing-md);
+}
+
+.actions {
+  display: flex;
+  gap: var(--spacing-md);
+  margin-top: var(--spacing-md);
+}
+
+.actionButton {
+  flex: 1;
+  padding: var(--spacing-sm) var(--spacing-md);
+  border-radius: var(--radius-md);
+  border: none;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  transition: all var(--transition-fast);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-xs);
+}
+
+.actionButton.primary {
+  background: var(--color-accent);
+  color: white;
+}
+
+.actionButton.primary:hover {
+  background: #D35400;
+}
+
+.actionButton.secondary {
+  background: var(--color-background);
+  color: var(--color-primary);
+}
+
+.actionButton.secondary:hover {
+  background: var(--color-border);
+}
+
+.reviewPanel {
+  margin-top: var(--spacing-lg);
+  padding-top: var(--spacing-lg);
+  border-top: 1px solid var(--color-border);
+}
+
+.reviewTitle {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--color-primary);
+  margin-bottom: var(--spacing-md);
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+}
+
+.reviewButtons {
+  display: flex;
+  gap: var(--spacing-sm);
+}
+
+.reviewButton {
+  flex: 1;
+  padding: var(--spacing-sm);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-border);
+  background: var(--color-card);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-xs);
+  font-size: 13px;
+  color: var(--color-secondary);
+  transition: all var(--transition-fast);
+}
+
+.reviewButton:hover {
+  border-color: var(--color-accent);
+  color: var(--color-accent);
+}
+
+.reviewButton.playing {
+  background: var(--color-accent);
+  border-color: var(--color-accent);
+  color: white;
+}
+
+.audioPreview {
+  display: none;
+}

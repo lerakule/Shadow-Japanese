@@ -1,0 +1,127 @@
+.player {
+  background: var(--color-card);
+  border-radius: var(--radius-lg);
+  padding: var(--spacing-lg);
+  box-shadow: var(--shadow-md);
+}
+
+.waveform {
+  height: 80px;
+  background: var(--color-background);
+  border-radius: var(--radius-md);
+  margin-bottom: var(--spacing-md);
+  overflow: hidden;
+  position: relative;
+}
+
+.waveformCanvas {
+  width: 100%;
+  height: 100%;
+}
+
+.progressBar {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  background: rgba(225, 112, 85, 0.2);
+  pointer-events: none;
+  transition: width 0.1s linear;
+}
+
+.controls {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+}
+
+.playButton {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: var(--color-accent);
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all var(--transition-fast);
+  color: white;
+  font-size: 24px;
+  flex-shrink: 0;
+}
+
+.playButton:hover {
+  transform: scale(1.05);
+  box-shadow: 0 4px 12px rgba(225, 112, 85, 0.4);
+}
+
+.playButton:active {
+  transform: scale(0.98);
+}
+
+.timeDisplay {
+  font-size: 14px;
+  color: var(--color-secondary);
+  font-family: var(--font-en);
+  min-width: 90px;
+}
+
+.rateSelector {
+  display: flex;
+  gap: 4px;
+}
+
+.rateButton {
+  padding: 4px 8px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--color-border);
+  background: var(--color-card);
+  cursor: pointer;
+  font-size: 12px;
+  color: var(--color-secondary);
+  transition: all var(--transition-fast);
+}
+
+.rateButton:hover {
+  border-color: var(--color-accent);
+  color: var(--color-accent);
+}
+
+.rateButton.active {
+  background: var(--color-accent);
+  border-color: var(--color-accent);
+  color: white;
+}
+
+.volumeControl {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+}
+
+.volumeIcon {
+  font-size: 20px;
+  cursor: pointer;
+  color: var(--color-secondary);
+}
+
+.volumeSlider {
+  width: 60px;
+  height: 4px;
+  -webkit-appearance: none;
+  appearance: none;
+  background: var(--color-border);
+  border-radius: 2px;
+  cursor: pointer;
+}
+
+.volumeSlider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--color-accent);
+  cursor: pointer;
+}
