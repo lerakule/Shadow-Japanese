@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { parsePodcastXml } from './podcastApi.js';
+import { PODCAST_SOURCES, fetchPodcastFeed, parsePodcastXml } from './podcastApi.js';
 
 const sampleRss = `<?xml version="1.0" encoding="UTF-8" ?>
 <rss version="2.0">
@@ -33,3 +33,18 @@ test('parsePodcastXml converts RSS items into shadowing content', () => {
   assert.equal(items[0].hasAudio, true);
   assert.equal(items[0].needsTranscript, true);
 });
+
+test('fetchPodcastFeed returns built-in fallback audio when RSS fetch fails', async () => {
+  const failingFetcher = async () => {
+    throw new Error('network unavailable');
+  };
+
+  const items = await fetchPodcastFeed(PODCAST_SOURCES[0], 3, { fetcher: failingFetcher });
+
+  assert.ok(items.length > 0);
+  assert.equal(items[0].category, 'podcast');
+  assert.equal(items[0].hasAudio, true);
+  assert.match(items[0].audioUrl, /^https:\/\/.+\.mp3/);
+  assert.equal(items[0].isFallback, true);
+});
+
