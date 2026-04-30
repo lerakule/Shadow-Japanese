@@ -15,7 +15,7 @@ function Practice() {
   
   const content = state.currentContent;
   
-  // 使用音频播放器
+  // 使用音频播放器 - 传递 text 给 TTS
   const {
     isPlaying,
     currentTime,
@@ -26,8 +26,8 @@ function Practice() {
     pause,
     seek,
     setRate,
-  } = useAudioPlayer(content?.audioUrl);
-  
+  } = useAudioPlayer(content?.audioUrl, content?.body);
+
   // 使用录音器
   const {
     isRecording,
@@ -38,15 +38,15 @@ function Practice() {
     stopRecording,
     saveRecording,
   } = useRecorder(content?.id);
-  
-  // 生成模拟原音波形（因为内置音频可能不存在）
+
+  // 生成模拟原音波形
   useEffect(() => {
     if (content && originalWaveform.length === 0) {
       const mockData = Array(100).fill(0).map(() => Math.random() * 0.6 + 0.4);
       setOriginalWaveform(mockData);
     }
   }, [content]);
-  
+
   // 获取录音波形用于复盘
   useEffect(() => {
     if (recordedUrl && recordedWaveform.length > 0) {
@@ -54,7 +54,7 @@ function Practice() {
       setRecordedWaveform(latestWaveform);
     }
   }, [recordedUrl, recordingWaveform]);
-  
+
   const handleSaveRecording = () => {
     const record = saveRecording();
     if (record) {
@@ -63,17 +63,17 @@ function Practice() {
       setRecordedWaveform(mockRecordWaveform);
     }
   };
-  
+
   const handleComplete = () => {
     if (content) {
       dispatch({ type: ActionTypes.MARK_CONTENT_COMPLETED, payload: content.id });
     }
   };
-  
+
   const handleBack = () => {
     dispatch({ type: ActionTypes.SET_ACTIVE_TAB, payload: 'home' });
   };
-  
+
   if (!content) {
     return (
       <div className={styles.practice}>
@@ -87,9 +87,9 @@ function Practice() {
       </div>
     );
   }
-  
+
   const isCompleted = state.completedContents[content.id]?.completed;
-  
+
   return (
     <div className={styles.practice}>
       {/* 返回按钮 */}
@@ -125,7 +125,7 @@ function Practice() {
       {/* 音频播放 */}
       <div className={styles.sectionTitle}>
         <span className={styles.sectionIcon}>🔊</span>
-        <span>音频播放</span>
+        <span>音频播放 {content.audioUrl === 'tts' && '(语音合成)'}</span>
       </div>
       <AudioPlayer
         audioUrl={content.audioUrl}
