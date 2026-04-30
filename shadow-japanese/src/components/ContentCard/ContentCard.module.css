@@ -122,3 +122,18 @@
   color: var(--color-secondary);
   font-size: 18px;
 }
+
+/* NHK新闻卡片特殊样式 */
+.nhkCard {
+  border-left: 3px solid #E60012; /* NHK红色 */
+}
+
+.nhkBadge {
+  background: #E60012;
+  color: white;
+}
+
+.badge.nhkBadge {
+  background: #E60012;
+  color: white;
+}

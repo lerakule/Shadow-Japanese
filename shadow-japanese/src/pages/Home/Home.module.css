@@ -80,3 +80,50 @@
   margin-top: var(--spacing-md);
   color: var(--color-secondary);
 }
+
+/* 内容源切换 */
+.sourceSwitch {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  margin-top: var(--spacing-md);
+  flex-wrap: wrap;
+}
+
+.sourceLabel {
+  font-size: 13px;
+  color: var(--color-secondary);
+}
+
+.sourceButton {
+  padding: 6px 12px;
+  border-radius: 16px;
+  border: 1px solid var(--color-border);
+  background: var(--color-card);
+  font-size: 13px;
+  color: var(--color-text);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.sourceButton:hover:not(:disabled) {
+  border-color: var(--color-accent);
+  background: var(--color-background);
+}
+
+.sourceButton.active {
+  background: var(--color-accent);
+  border-color: var(--color-accent);
+  color: white;
+}
+
+.sourceButton:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.sourceHint {
+  font-size: 12px;
+  color: var(--color-accent);
+  margin-top: var(--spacing-xs);
+}
