@@ -14,3 +14,11 @@ export {
   getNewsAPIConfig,
   generateAudioUrl 
 } from './japaneseTtsApi';
+export {
+  PODCAST_SOURCES,
+  parsePodcastXml,
+  fetchPodcastFeed,
+  fetchPodcastSourceById,
+  createCustomPodcastSource,
+} from './podcastApi';
+

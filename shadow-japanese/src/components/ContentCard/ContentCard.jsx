@@ -19,6 +19,7 @@ function ContentCard({ content, onClick }) {
       news: '新闻',
       anime: '动漫',
       drama: '影视',
+      podcast: '真人音频',
       custom: '自定义',
       社会: '社会',
       科技: '科技',

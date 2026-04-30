@@ -26,7 +26,7 @@ function Practice() {
     pause,
     seek,
     setRate,
-  } = useAudioPlayer(content?.audioUrl, content?.body);
+  } = useAudioPlayer(content?.audioUrl, practiceText || content?.body);
 
   // 使用录音器
   const {
@@ -117,7 +117,7 @@ function Practice() {
         
         {showTranslation && (
           <div className={styles.translation}>
-            {content.bodyCn}
+            {practiceTranslation || content.bodyCn || '暂无翻译'}
           </div>
         )}
       </div>

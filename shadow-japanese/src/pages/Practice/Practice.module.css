@@ -67,6 +67,54 @@
   color: white;
 }
 
+.transcriptEditor {
+  margin-bottom: var(--spacing-md);
+  padding: var(--spacing-md);
+  background: #F6F8FF;
+  border: 1px solid #DCE3F8;
+  border-radius: var(--radius-md);
+}
+
+.transcriptHeader {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-bottom: var(--spacing-sm);
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--color-primary);
+}
+
+.transcriptHint {
+  font-size: 12px;
+  font-weight: 400;
+  color: var(--color-secondary);
+  line-height: 1.5;
+}
+
+.transcriptTextarea {
+  width: 100%;
+  margin-bottom: var(--spacing-sm);
+  padding: 10px 12px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-card);
+  color: var(--color-text);
+  font-family: var(--font-jp);
+  font-size: 14px;
+  line-height: 1.7;
+  resize: vertical;
+  outline: none;
+}
+
+.transcriptTextarea:focus {
+  border-color: #3F51B5;
+}
+
+.transcriptTextarea:last-child {
+  margin-bottom: 0;
+}
+
 .contentBody {
   background: var(--color-card);
   border-radius: var(--radius-md);
