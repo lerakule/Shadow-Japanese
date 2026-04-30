@@ -1,6 +1,6 @@
 .home {
   padding: var(--spacing-md);
-  max-width: 800px;
+  max-width: 720px;
   margin: 0 auto;
 }
 
@@ -38,97 +38,32 @@
   font-weight: 600;
 }
 
-.contentList {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-md);
-}
-
-.animeGrid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-  gap: var(--spacing-md);
-  margin-top: var(--spacing-md);
-}
-
-.sectionTitle {
-  font-size: 18px;
-  font-weight: 600;
-  color: var(--color-primary);
-  margin-bottom: var(--spacing-sm);
-  padding-bottom: var(--spacing-sm);
-  border-bottom: 1px solid var(--color-border);
-}
-
-.emptyState {
-  text-align: center;
-  padding: var(--spacing-xl);
+.sourceHint {
+  font-size: 13px;
   color: var(--color-secondary);
+  line-height: 1.6;
+  margin-top: var(--spacing-sm);
 }
 
-.emptyIcon {
-  font-size: 48px;
+.toolbar {
+  background: var(--color-card);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: var(--spacing-md);
   margin-bottom: var(--spacing-md);
+  box-shadow: var(--shadow-sm);
 }
 
-.retryButton {
-  margin-top: var(--spacing-md);
-  padding: 8px 16px;
-  background: var(--color-accent);
-  color: white;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  font-size: 14px;
-}
-
-.retryButton:hover {
-  opacity: 0.9;
-}
-
-.loading {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: var(--spacing-xl);
-}
-
-.spinner {
-  width: 40px;
-  height: 40px;
-  border: 3px solid var(--color-border);
-  border-top-color: var(--color-accent);
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
-}
-
-@keyframes spin {
-  to { transform: rotate(360deg); }
-}
-
-.loadingText {
-  margin-top: var(--spacing-md);
-  color: var(--color-secondary);
-}
-
-/* 内容源切换 */
 .sourceSwitch {
   display: flex;
   align-items: center;
   gap: var(--spacing-sm);
-  margin-top: var(--spacing-md);
   flex-wrap: wrap;
 }
 
-.sourceLabel {
-  font-size: 13px;
-  color: var(--color-secondary);
-}
-
 .sourceButton {
-  padding: 6px 14px;
-  border-radius: 16px;
+  padding: 7px 14px;
+  border-radius: 18px;
   border: 1px solid var(--color-border);
   background: var(--color-card);
   font-size: 13px;
@@ -148,18 +83,6 @@
   color: white;
 }
 
-.sourceButton:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-}
-
-.sourceHint {
-  font-size: 12px;
-  color: var(--color-accent);
-  margin-top: var(--spacing-xs);
-}
-
-/* 搜索框 */
 .searchBox {
   display: flex;
   gap: var(--spacing-sm);
@@ -171,7 +94,7 @@
   padding: 10px 14px;
   border: 1px solid var(--color-border);
   border-radius: 20px;
-  background: var(--color-card);
+  background: var(--color-background);
   color: var(--color-text);
   font-size: 14px;
   outline: none;
@@ -186,23 +109,118 @@
   color: var(--color-secondary);
 }
 
-.searchButton {
-  padding: 10px 16px;
-  border: 1px solid var(--color-border);
-  border-radius: 20px;
-  background: var(--color-accent);
-  color: white;
-  cursor: pointer;
-  font-size: 14px;
-  transition: opacity 0.2s;
+.customSection {
+  margin-bottom: var(--spacing-md);
 }
 
-.searchButton:hover {
+.customToggle {
+  width: 100%;
+  padding: 12px 14px;
+  border: 1px dashed var(--color-accent);
+  border-radius: var(--radius-md);
+  background: #FFF8F5;
+  color: var(--color-accent);
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.customToggle:hover {
+  background: #FFF1EB;
+}
+
+.customForm {
+  margin-top: var(--spacing-sm);
+  padding: var(--spacing-md);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-card);
+  box-shadow: var(--shadow-sm);
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+}
+
+.customInput,
+.customTextarea {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  font-size: 14px;
+  color: var(--color-text);
+  background: var(--color-background);
+  outline: none;
+  resize: vertical;
+}
+
+.customInput:focus,
+.customTextarea:focus {
+  border-color: var(--color-accent);
+}
+
+.customTextarea {
+  font-family: var(--font-jp);
+  line-height: 1.6;
+}
+
+.createButton {
+  padding: 11px 14px;
+  border: none;
+  border-radius: var(--radius-sm);
+  background: var(--color-accent);
+  color: white;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.createButton:hover {
   opacity: 0.9;
 }
 
+.extensionNote {
+  padding: var(--spacing-md);
+  margin-bottom: var(--spacing-md);
+  border-radius: var(--radius-md);
+  background: #F7F7F7;
+  color: var(--color-secondary);
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.sectionTitle {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--color-primary);
+  margin-bottom: var(--spacing-sm);
+  padding-bottom: var(--spacing-sm);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.contentList {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+}
+
+.emptyState {
+  text-align: center;
+  padding: var(--spacing-xl);
+  color: var(--color-secondary);
+}
+
+.emptyIcon {
+  font-size: 48px;
+  margin-bottom: var(--spacing-md);
+}
+
 @media (max-width: 480px) {
-  .animeGrid {
-    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  .home {
+    padding: var(--spacing-sm);
+  }
+
+  .sourceButton {
+    flex: 1;
+    min-width: 64px;
   }
 }

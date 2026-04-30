@@ -1,130 +1,81 @@
-import { useState, useEffect } from 'react';
+import { useMemo, useState } from 'react';
 import { useApp, ActionTypes } from '../../context/AppContext';
-import { getTopAnime, searchAnime, getSeasonalAnime } from '../../data/animeApi';
-import AnimeCard from '../../components/AnimeCard';
-import VideoModal from '../../components/VideoModal';
+import { getDailyContents } from '../../data/contents';
+import ContentCard from '../../components/ContentCard';
 import styles from './Home.module.css';
+
+const CATEGORY_FILTERS = [
+  { id: 'all', label: '全部' },
+  { id: 'news', label: '新闻' },
+  { id: 'anime', label: '动漫' },
+  { id: 'drama', label: '影视' },
+];
 
 function Home() {
   const { state, dispatch } = useApp();
-  const [animeList, setAnimeList] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [contentType, setContentType] = useState('top'); // 'top' | 'seasonal' | 'search'
-  const [searchQuery, setSearchQuery] = useState('');
-  const [searchInput, setSearchInput] = useState('');
-  const [selectedAnime, setSelectedAnime] = useState(null);
-  const [showVideoModal, setShowVideoModal] = useState(false);
-  const [error, setError] = useState(null);
+  const [categoryFilter, setCategoryFilter] = useState('all');
+  const [searchTerm, setSearchTerm] = useState('');
+  const [showCustomForm, setShowCustomForm] = useState(false);
+  const [customTitle, setCustomTitle] = useState('自定义跟读素材');
+  const [customBody, setCustomBody] = useState('');
+  const [customTranslation, setCustomTranslation] = useState('');
 
-  // 加载热门动漫
-  const loadTopAnime = async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      const data = await getTopAnime(1, 15);
-      setAnimeList(data.anime);
-      setContentType('top');
-    } catch (err) {
-      console.error('加载热门动漫失败:', err);
-      setError('加载失败，请稍后重试');
-    }
-    setLoading(false);
-  };
+  const contents = useMemo(() => getDailyContents(), []);
 
-  // 加载当季动漫
-  const loadSeasonalAnime = async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      const data = await getSeasonalAnime(1, 15);
-      setAnimeList(data.anime);
-      setContentType('seasonal');
-    } catch (err) {
-      console.error('加载当季动漫失败:', err);
-      setError('加载失败，请稍后重试');
-    }
-    setLoading(false);
-  };
+  const filteredContents = useMemo(() => {
+    return contents.filter(content => {
+      const matchesCategory = categoryFilter === 'all' || content.category === categoryFilter;
+      const keyword = searchTerm.trim().toLowerCase();
+      const matchesSearch = !keyword ||
+        content.title.toLowerCase().includes(keyword) ||
+        content.body.toLowerCase().includes(keyword) ||
+        content.titleCn?.toLowerCase().includes(keyword);
+      return matchesCategory && matchesSearch;
+    });
+  }, [contents, categoryFilter, searchTerm]);
 
-  // 搜索动漫
-  const handleSearch = async (e) => {
-    e.preventDefault();
-    if (!searchQuery.trim()) return;
-    
-    setLoading(true);
-    setError(null);
-    try {
-      const data = await searchAnime(searchQuery, 1);
-      setAnimeList(data.anime);
-      setContentType('search');
-    } catch (err) {
-      console.error('搜索失败:', err);
-      setError('搜索失败，请稍后重试');
-    }
-    setLoading(false);
-  };
+  const today = new Date().toISOString().split('T')[0];
+  const completedToday = contents.filter(c => state.completedContents[c.id]?.date === today).length;
 
-  // 处理搜索输入
-  const handleSearchInputChange = (e) => {
-    setSearchInput(e.target.value);
-  };
-
-  // 执行搜索
-  const executeSearch = () => {
-    if (searchInput.trim()) {
-      setSearchQuery(searchInput);
-    }
-  };
-
-  // 按回车搜索
-  const handleKeyPress = (e) => {
-    if (e.key === 'Enter') {
-      executeSearch();
-    }
-  };
-
-  useEffect(() => {
-    loadTopAnime();
-  }, []);
-
-  // 当searchQuery变化时执行搜索
-  useEffect(() => {
-    if (searchQuery) {
-      handleSearch({ preventDefault: () => {} });
-    }
-  }, [searchQuery]);
-
-  const handleAnimeClick = (anime) => {
-    setSelectedAnime(anime);
-    dispatch({ type: ActionTypes.SET_CURRENT_CONTENT, payload: anime });
-  };
-
-  const handlePlayVideo = (anime, e) => {
-    e?.stopPropagation();
-    if (anime.trailer?.url || anime.streaming?.[0]?.url) {
-      setSelectedAnime(anime);
-      setShowVideoModal(true);
-    }
-  };
-
-  const closeVideoModal = () => {
-    setShowVideoModal(false);
-    setSelectedAnime(null);
-  };
-
-  // 格式化日期
   const formatDate = () => {
     const options = { year: 'numeric', month: 'long', day: 'numeric', weekday: 'long' };
     return new Date().toLocaleDateString('zh-CN', options);
   };
 
-  const getTypeTitle = () => {
-    switch (contentType) {
-      case 'top': return '🏆 热门排行';
-      case 'seasonal': return '📺 当季新番';
-      case 'search': return `🔍 搜索结果: "${searchQuery}"`;
-      default: return '🎬 动漫列表';
+  const startPractice = (content) => {
+    dispatch({ type: ActionTypes.SET_CURRENT_CONTENT, payload: content });
+    dispatch({ type: ActionTypes.SET_ACTIVE_TAB, payload: 'practice' });
+  };
+
+  const handleCreateCustom = () => {
+    const body = customBody.trim();
+    if (!body) {
+      alert('请先输入日文跟读文本');
+      return;
     }
+
+    const customContent = {
+      id: `custom-${Date.now()}`,
+      title: customTitle.trim() || '自定义跟读素材',
+      titleCn: '自定义内容',
+      body,
+      bodyCn: customTranslation.trim(),
+      audioUrl: 'tts',
+      duration: Math.max(30, Math.ceil(body.length / 4)),
+      difficulty: '自定义',
+      category: 'custom',
+      hasAudio: true,
+      grammars: [
+        {
+          pattern: '自定义素材',
+          meaning: '该内容由你手动输入，可直接使用浏览器日语TTS进行影子跟读。',
+          formation: '输入日文文本 → 播放TTS → 跟读录音 → 回听复盘',
+          examples: ['短い台詞や新闻段落を貼り付けると、すぐに練習できます。']
+        }
+      ]
+    };
+
+    startPractice(customContent);
   };
 
   return (
@@ -132,91 +83,100 @@ function Home() {
       <div className={styles.header}>
         <p className={styles.date}>{formatDate()}</p>
         <h1 className={styles.title}>
-          <span className={styles.titleIcon}>🎬</span>
-          日语动漫学习
+          <span className={styles.titleIcon}>🌸</span>
+          影子跟读素材库
         </h1>
         <p className={styles.goal}>
-          通过观看日语动漫学习地道表达 🎌
+          今日进度：<span className={styles.goalHighlight}>{completedToday}/{contents.length}</span> 篇
         </p>
-        
-        {/* 内容类型切换 */}
+        <p className={styles.sourceHint}>
+          选择新闻、动漫或影视短文，进入练习页播放日语音频并录音跟读。
+        </p>
+      </div>
+
+      <div className={styles.toolbar}>
         <div className={styles.sourceSwitch}>
-          <button 
-            className={`${styles.sourceButton} ${contentType === 'top' ? styles.active : ''}`}
-            onClick={loadTopAnime}
-          >
-            🏆 热门
-          </button>
-          <button 
-            className={`${styles.sourceButton} ${contentType === 'seasonal' ? styles.active : ''}`}
-            onClick={loadSeasonalAnime}
-          >
-            📺 当季
-          </button>
+          {CATEGORY_FILTERS.map(filter => (
+            <button
+              key={filter.id}
+              className={`${styles.sourceButton} ${categoryFilter === filter.id ? styles.active : ''}`}
+              onClick={() => setCategoryFilter(filter.id)}
+            >
+              {filter.label}
+            </button>
+          ))}
         </div>
-        
-        {/* 搜索框 */}
+
         <div className={styles.searchBox}>
           <input
             type="text"
             className={styles.searchInput}
-            placeholder="搜索动漫..."
-            value={searchInput}
-            onChange={handleSearchInputChange}
-            onKeyPress={handleKeyPress}
+            placeholder="搜索标题或原文..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
           />
-          <button 
-            className={styles.searchButton}
-            onClick={executeSearch}
-          >
-            🔍
-          </button>
         </div>
-        
-        <p className={styles.sourceHint}>
-          💡 点击卡片查看详情，播放预告片练习听力
-        </p>
       </div>
-      
-      <h2 className={styles.sectionTitle}>{getTypeTitle()}</h2>
-      
-      {loading ? (
-        <div className={styles.loading}>
-          <div className={styles.spinner} />
-          <p className={styles.loadingText}>正在加载动漫列表...</p>
-        </div>
-      ) : error ? (
-        <div className={styles.emptyState}>
-          <div className={styles.emptyIcon}>😢</div>
-          <p>{error}</p>
-          <button className={styles.retryButton} onClick={loadTopAnime}>
-            重新加载
-          </button>
-        </div>
-      ) : animeList.length === 0 ? (
+
+      <div className={styles.customSection}>
+        <button
+          className={styles.customToggle}
+          onClick={() => setShowCustomForm(!showCustomForm)}
+        >
+          {showCustomForm ? '收起自定义文本' : '＋ 粘贴文本生成跟读素材'}
+        </button>
+
+        {showCustomForm && (
+          <div className={styles.customForm}>
+            <input
+              className={styles.customInput}
+              value={customTitle}
+              onChange={(e) => setCustomTitle(e.target.value)}
+              placeholder="素材标题"
+            />
+            <textarea
+              className={styles.customTextarea}
+              value={customBody}
+              onChange={(e) => setCustomBody(e.target.value)}
+              placeholder="粘贴日文文本，例如新闻段落、动漫台词、影视对白..."
+              rows={6}
+            />
+            <textarea
+              className={styles.customTextarea}
+              value={customTranslation}
+              onChange={(e) => setCustomTranslation(e.target.value)}
+              placeholder="可选：粘贴中文翻译"
+              rows={3}
+            />
+            <button className={styles.createButton} onClick={handleCreateCustom}>
+              开始自定义跟读
+            </button>
+          </div>
+        )}
+      </div>
+
+      <section className={styles.extensionNote}>
+        <strong>内容源规划：</strong>
+        当前先提供稳定精选素材与自定义文本；动漫/影视API已保留为作品灵感来源，后续可把作品简介或用户粘贴的字幕转为跟读素材。
+      </section>
+
+      <h2 className={styles.sectionTitle}>今日精选素材</h2>
+
+      {filteredContents.length === 0 ? (
         <div className={styles.emptyState}>
           <div className={styles.emptyIcon}>🔍</div>
-          <p>没有找到相关动漫</p>
+          <p>没有找到匹配的跟读素材</p>
         </div>
       ) : (
-        <div className={styles.animeGrid}>
-          {animeList.map(anime => (
-            <AnimeCard 
-              key={anime.id} 
-              anime={anime}
-              onClick={() => handleAnimeClick(anime)}
-              onPlayTrailer={(e) => handlePlayVideo(anime, e)}
+        <div className={styles.contentList}>
+          {filteredContents.map(content => (
+            <ContentCard
+              key={content.id}
+              content={content}
+              onClick={startPractice}
             />
           ))}
         </div>
-      )}
-
-      {/* 视频播放器模态框 */}
-      {showVideoModal && selectedAnime && (
-        <VideoModal 
-          anime={selectedAnime}
-          onClose={closeVideoModal}
-        />
       )}
     </div>
   );

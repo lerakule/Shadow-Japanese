@@ -71,6 +71,11 @@
   color: #E65100;
 }
 
+.badge.custom {
+  background: #F3E5F5;
+  color: #6A1B9A;
+}
+
 .meta {
   display: flex;
   align-items: center;
